@@ -521,7 +521,7 @@ function Menu() {
       return;
     }
 
-    const restaurantNumber = "923116592375";
+    const restaurantNumber = "923168937463";
 
     let message =
       "Assalam-o-Alaikum Jumma Gujjar Nihari & Pakwan!\n\n";

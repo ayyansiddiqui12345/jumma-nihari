@@ -73,7 +73,7 @@ function Location() {
                     <div className="location-actions">
 
                         <a
-                            href="tel:+923116592375"
+                            href="tel:+923168937463"
                             className="location-button"
                         >
                             <Phone size={17} />
@@ -81,7 +81,7 @@ function Location() {
                         </a>
 
                         <a
-                            href="https://wa.me/923116592375"
+                            href="https://wa.me/923168937463"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="location-button whatsapp-button"
