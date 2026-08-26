@@ -6,22 +6,26 @@ import {
   X,
   Trash2,
   MapPin,
+  Navigation,
+  CheckCircle2,
 } from "lucide-react";
 import { useState } from "react";
 
 function Menu() {
-  /* =========================================
+  /* =========================================================
      RESTAURANT LOCATION
-  ========================================= */
+  ========================================================= */
 
   const RESTAURANT_LOCATION = {
     lat: 24.8964922,
     lng: 67.0453184,
   };
 
-  /* =========================================
+  /* =========================================================
      DELIVERY RATES
-  ========================================= */
+
+     Distance is based on ACTUAL DRIVING DISTANCE from OSRM.
+  ========================================================= */
 
   const DELIVERY_RATES = [
     { maxDistance: 3, fee: 100 },
@@ -31,9 +35,9 @@ function Menu() {
     { maxDistance: 15, fee: 400 },
   ];
 
-  /* =========================================
+  /* =========================================================
      STATES
-  ========================================= */
+  ========================================================= */
 
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -42,6 +46,7 @@ function Menu() {
     name: "",
     phone: "",
     address: "",
+    landmark: "",
     location: "",
   });
 
@@ -50,11 +55,12 @@ function Menu() {
     fee: 0,
     loading: false,
     error: "",
+    source: "",
   });
 
-  /* =========================================
-     NIHARI
-  ========================================= */
+  /* =========================================================
+     MENU ITEMS
+  ========================================================= */
 
   const nihariItems = [
     {
@@ -124,17 +130,13 @@ function Menu() {
       price: 2400,
       featured: true,
     },
-
-    /* =========================================
-       NEW NIHARI TINS
-    ========================================= */
-
     {
       id: 22,
       category: "Nihari",
       urdu: "جمّہ گجّر نہاری ٹن 450 گرام",
       name: "Jumma Gujjar Nihari Tin 450 GM",
-      description: "Our signature Nihari packed in a convenient 450 GM tin",
+      description:
+        "Our signature Nihari packed in a convenient 450 GM tin",
       price: 800,
       featured: true,
     },
@@ -143,15 +145,12 @@ function Menu() {
       category: "Nihari",
       urdu: "جمّہ گجّر نہاری ٹن 900 گرام",
       name: "Jumma Gujjar Nihari Tin 900 GM",
-      description: "Our signature Nihari packed in a generous 900 GM tin",
+      description:
+        "Our signature Nihari packed in a generous 900 GM tin",
       price: 1600,
       featured: true,
     },
   ];
-
-  /* =========================================
-     EXTRA NIHARI ITEMS
-  ========================================= */
 
   const extras = [
     {
@@ -180,10 +179,6 @@ function Menu() {
     },
   ];
 
-  /* =========================================
-     SIDES
-  ========================================= */
-
   const sides = [
     {
       id: 9,
@@ -202,10 +197,6 @@ function Menu() {
       price: 80,
     },
   ];
-
-  /* =========================================
-     BIRYANI & PULAO
-  ========================================= */
 
   const biryaniItems = [
     {
@@ -275,10 +266,6 @@ function Menu() {
     },
   ];
 
-  /* =========================================
-     DRINKS & DESSERTS
-  ========================================= */
-
   const drinks = [
     {
       id: 19,
@@ -307,9 +294,9 @@ function Menu() {
     },
   ];
 
-  /* =========================================
+  /* =========================================================
      CART FUNCTIONS
-  ========================================= */
+  ========================================================= */
 
   const addToCart = (item) => {
     setCart((current) => {
@@ -380,20 +367,18 @@ function Menu() {
     return item ? item.quantity : 0;
   };
 
-  /* =========================================
+  /* =========================================================
      TOTALS
-  ========================================= */
+  ========================================================= */
 
   const totalItems = cart.reduce(
-    (total, item) =>
-      total + item.quantity,
+    (total, item) => total + item.quantity,
     0
   );
 
   const totalPrice = cart.reduce(
     (total, item) =>
-      total +
-      item.price * item.quantity,
+      total + item.price * item.quantity,
     0
   );
 
@@ -405,9 +390,19 @@ function Menu() {
       price
     );
 
-  /* =========================================
-     CUSTOMER DETAILS
-  ========================================= */
+  /* =========================================================
+     CUSTOMER INPUT
+  ========================================================= */
+
+  const resetDelivery = () => {
+    setDelivery({
+      distance: null,
+      fee: 0,
+      loading: false,
+      error: "",
+      source: "",
+    });
+  };
 
   const handleCustomerChange = (e) => {
     const { name, value } = e.target;
@@ -417,329 +412,626 @@ function Menu() {
       [name]: value,
     }));
 
-    if (name === "address") {
-      setDelivery({
-        distance: null,
-        fee: 0,
-        loading: false,
-        error: "",
-      });
+    /*
+      Any change to address/landmark/location means
+      the previous delivery calculation is no longer valid.
+    */
+
+    if (
+      name === "address" ||
+      name === "landmark" ||
+      name === "location"
+    ) {
+      resetDelivery();
     }
   };
 
-  /* =========================================
+  /* =========================================================
      GOOGLE MAPS
-  ========================================= */
+  ========================================================= */
 
   const openGoogleMaps = () => {
     window.open(
       "https://www.google.com/maps/search/?api=1&query=24.8964922,67.0453184",
-      "_blank"
+      "_blank",
+      "noopener,noreferrer"
     );
   };
 
-  /* =========================================
-     DISTANCE CALCULATION
-  ========================================= */
+  /* =========================================================
+     GOOGLE MAPS COORDINATE EXTRACTION
+  =========================================================
 
-  const calculateDistance = (
-    lat1,
-    lon1,
-    lat2,
-    lon2
+     Handles common Google Maps URLs containing coordinates.
+
+     Examples:
+
+     https://www.google.com/maps/@24.9001,67.0502,17z
+
+     https://www.google.com/maps/search/?api=1&query=24.9001,67.0502
+
+     https://www.google.com/maps?q=24.9001,67.0502
+  ========================================================= */
+
+  const extractCoordinatesFromGoogleMapsLink = (
+    rawUrl
   ) => {
-    const R = 6371;
+    if (!rawUrl || !rawUrl.trim()) {
+      return null;
+    }
 
-    const dLat =
-      ((lat2 - lat1) *
-        Math.PI) /
-      180;
+    try {
+      const url = new URL(rawUrl.trim());
 
-    const dLon =
-      ((lon2 - lon1) *
-        Math.PI) /
-      180;
+      const host = url.hostname.toLowerCase();
 
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(
-        (lat1 * Math.PI) / 180
-      ) *
-        Math.cos(
-          (lat2 * Math.PI) / 180
-        ) *
-        Math.sin(dLon / 2) ** 2;
+      if (
+        !host.includes("google.com") &&
+        !host.includes("googleusercontent.com") &&
+        !host.includes("maps.app.goo.gl") &&
+        !host.includes("goo.gl")
+      ) {
+        return null;
+      }
 
-    const c =
-      2 *
-      Math.atan2(
-        Math.sqrt(a),
-        Math.sqrt(1 - a)
+      /*
+        1. ?query=lat,lng
+      */
+
+      const queryValues = [
+        url.searchParams.get("query"),
+        url.searchParams.get("q"),
+        url.searchParams.get("ll"),
+      ];
+
+      for (const value of queryValues) {
+        if (!value) continue;
+
+        const match = value.match(
+          /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/
+        );
+
+        if (match) {
+          const lat = Number(match[1]);
+          const lng = Number(match[2]);
+
+          if (
+            lat >= -90 &&
+            lat <= 90 &&
+            lng >= -180 &&
+            lng <= 180
+          ) {
+            return { lat, lng };
+          }
+        }
+      }
+
+      /*
+        2. /@lat,lng,zoom
+      */
+
+      const atMatch = rawUrl.match(
+        /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,\d+(?:\.\d+)?z)?/
       );
 
-    return R * c;
-  };
+      if (atMatch) {
+        const lat = Number(atMatch[1]);
+        const lng = Number(atMatch[2]);
 
-  /* =========================================
-     DELIVERY FEE
-  ========================================= */
+        if (
+          lat >= -90 &&
+          lat <= 90 &&
+          lng >= -180 &&
+          lng <= 180
+        ) {
+          return { lat, lng };
+        }
+      }
 
-  const getDeliveryFee = (distance) => {
-    const rate =
-      DELIVERY_RATES.find(
-        (item) =>
-          distance <= item.maxDistance
+      /*
+        3. Coordinates anywhere in URL.
+
+        This catches some additional Google Maps formats.
+      */
+
+      const genericMatch = rawUrl.match(
+        /(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/
       );
 
-    return rate ? rate.fee : null;
+      if (genericMatch) {
+        const lat = Number(genericMatch[1]);
+        const lng = Number(genericMatch[2]);
+
+        if (
+          lat >= -90 &&
+          lat <= 90 &&
+          lng >= -180 &&
+          lng <= 180
+        ) {
+          return { lat, lng };
+        }
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
   };
 
-  /* =========================================
-     CALCULATE DELIVERY
-  ========================================= */
+  /* =========================================================
+     GEOCODE ADDRESS
+  ========================================================= */
 
- const calculateDelivery = async () => {
-  if (!customer.address.trim()) {
-    setDelivery({
-      distance: null,
-      fee: 0,
-      loading: false,
-      error: "Please enter your delivery address.",
-    });
-
-    return;
-  }
-
-  setDelivery({
-    distance: null,
-    fee: 0,
-    loading: true,
-    error: "",
-  });
-
-  try {
-    /* =========================================
-       STEP 1 — FIND CUSTOMER LOCATION
-    ========================================= */
+  const geocodeAddress = async () => {
+    const fullAddress = [
+      customer.address.trim(),
+      customer.landmark.trim(),
+      "Karachi, Pakistan",
+    ]
+      .filter(Boolean)
+      .join(", ");
 
     const geocodeUrl =
-      `https://nominatim.openstreetmap.org/search` +
-      `?format=json` +
-      `&limit=1` +
-      `&countrycodes=pk` +
-      `&q=${encodeURIComponent(customer.address)}`;
+      "https://nominatim.openstreetmap.org/search" +
+      "?format=jsonv2" +
+      "&limit=1" +
+      "&countrycodes=pk" +
+      "&addressdetails=1" +
+      `&q=${encodeURIComponent(fullAddress)}`;
 
-    const geocodeResponse = await fetch(geocodeUrl, {
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await fetch(
+      geocodeUrl,
+      {
+        method: "GET",
+        headers: {
+          Accept:
+            "application/json",
+        },
+      }
+    );
 
-    if (!geocodeResponse.ok) {
-      throw new Error("Address lookup failed.");
+    if (!response.ok) {
+      throw new Error(
+        "Address lookup failed."
+      );
     }
 
-    const results = await geocodeResponse.json();
+    const results =
+      await response.json();
 
-    if (!results || results.length === 0) {
-      setDelivery({
-        distance: null,
-        fee: 0,
-        loading: false,
-        error:
-          "Address not found. Please enter a complete Karachi address.",
-      });
-
-      return;
+    if (
+      !results ||
+      !results.length
+    ) {
+      return null;
     }
 
-    const customerLat = parseFloat(results[0].lat);
-    const customerLng = parseFloat(results[0].lon);
+    const lat = Number(
+      results[0].lat
+    );
 
-    /* =========================================
-       STEP 2 — CALCULATE ACTUAL ROAD DISTANCE
-       USING OSRM
-    ========================================= */
+    const lng = Number(
+      results[0].lon
+    );
 
+    if (
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng)
+    ) {
+      return null;
+    }
+
+    return {
+      lat,
+      lng,
+    };
+  };
+
+  /* =========================================================
+     OSRM ROAD DISTANCE
+  ========================================================= */
+
+  const getRoadDistance = async (
+    customerLat,
+    customerLng
+  ) => {
     const routeUrl =
-      `https://router.project-osrm.org/route/v1/driving/` +
+      "https://router.project-osrm.org/route/v1/driving/" +
       `${RESTAURANT_LOCATION.lng},${RESTAURANT_LOCATION.lat};` +
       `${customerLng},${customerLat}` +
-      `?overview=false`;
+      "?overview=false&alternatives=false&steps=false";
 
-    const routeResponse = await fetch(routeUrl);
+    const response =
+      await fetch(routeUrl);
 
-    if (!routeResponse.ok) {
-      throw new Error("Route calculation failed.");
+    if (!response.ok) {
+      throw new Error(
+        "Road route calculation failed."
+      );
     }
 
-    const routeData = await routeResponse.json();
+    const routeData =
+      await response.json();
 
     if (
       routeData.code !== "Ok" ||
       !routeData.routes ||
       !routeData.routes.length
     ) {
-      throw new Error("Unable to calculate driving route.");
+      throw new Error(
+        "No driving route was found."
+      );
     }
 
-    /* OSRM returns distance in meters */
+    /*
+      OSRM returns meters.
+      Convert to kilometers.
+    */
 
     const distance =
-      routeData.routes[0].distance / 1000;
-
-    /* =========================================
-       STEP 3 — DELIVERY FEE
-    ========================================= */
-
-    const fee = getDeliveryFee(distance);
-
-    if (fee === null) {
-      setDelivery({
-        distance,
-        fee: 0,
-        loading: false,
-        error:
-          `Your location is ${distance.toFixed(
-            1
-          )} km away. Unfortunately, it is outside our 15 km delivery area.`,
-      });
-
-      return;
-    }
-
-    /* =========================================
-       STEP 4 — SUCCESS
-    ========================================= */
-
-    setDelivery({
-      distance,
-      fee,
-      loading: false,
-      error: "",
-    });
-  } catch (error) {
-    console.error("Delivery calculation error:", error);
-
-    setDelivery({
-      distance: null,
-      fee: 0,
-      loading: false,
-      error:
-        "Unable to calculate the driving distance. Please check your address and try again.",
-    });
-  }
-};
-  /* =========================================
-     WHATSAPP ORDER
-  ========================================= */
-
-  const orderOnWhatsApp = () => {
-    if (!cart.length) return;
-
-    if (!customer.name.trim()) {
-      alert("Please enter your name.");
-      return;
-    }
-
-    if (!customer.phone.trim()) {
-      alert("Please enter your phone number.");
-      return;
-    }
-
-    if (!customer.address.trim()) {
-      alert(
-        "Please enter your delivery address."
-      );
-      return;
-    }
-
-    if (delivery.loading) {
-      alert(
-        "Please wait while delivery charges are calculated."
-      );
-      return;
-    }
+      Number(
+        routeData.routes[0].distance
+      ) / 1000;
 
     if (
-      delivery.distance === null ||
-      delivery.error
+      !Number.isFinite(distance) ||
+      distance < 0
     ) {
-      alert(
-        "Please calculate your delivery charges first."
+      throw new Error(
+        "Invalid route distance."
       );
-      return;
     }
 
-    const restaurantNumber =
-      "923168937463";
-
-    let message =
-      "Assalam-o-Alaikum Jumma Gujjar Nihari & Pakwan!\n\n";
-
-    message +=
-      "I would like to place an order:\n\n";
-
-    cart.forEach((item, index) => {
-      message += `${index + 1}. ${
-        item.name
-      } x${item.quantity} — Rs. ${formatPrice(
-        item.price * item.quantity
-      )}\n`;
-    });
-
-    message +=
-      "\n------------------------\n";
-
-    message += `Subtotal: Rs. ${formatPrice(
-      totalPrice
-    )}\n`;
-
-    message += `Delivery Distance: ${delivery.distance.toFixed(
-      1
-    )} km\n`;
-
-    message += `Delivery Charges: Rs. ${formatPrice(
-      delivery.fee
-    )}\n`;
-
-    message += `TOTAL: Rs. ${formatPrice(
-      finalTotal
-    )}\n`;
-
-    message +=
-      "------------------------\n\n";
-
-    message += "Customer Details:\n";
-
-    message += `Name: ${customer.name}\n`;
-
-    message += `Phone: ${customer.phone}\n`;
-
-    message += `Address: ${customer.address}\n`;
-
-    if (customer.location.trim()) {
-      message += `Google Maps Location: ${customer.location}\n`;
-    }
-
-    message +=
-      "\nPlease confirm my order.\nThank you!";
-
-    const whatsappUrl =
-      `https://wa.me/${restaurantNumber}?text=` +
-      encodeURIComponent(message);
-
-    window.open(
-      whatsappUrl,
-      "_blank"
-    );
+    return distance;
   };
 
-  /* =========================================
-     MENU ITEM COMPONENT
-  ========================================= */
+  /* =========================================================
+     DELIVERY FEE
+  ========================================================= */
 
-  const MenuItem = ({ item }) => {
+  const getDeliveryFee = (
+    distance
+  ) => {
+    const rate =
+      DELIVERY_RATES.find(
+        (item) =>
+          distance <=
+          item.maxDistance
+      );
+
+    return rate
+      ? rate.fee
+      : null;
+  };
+
+  /* =========================================================
+     CALCULATE DELIVERY
+  ========================================================= */
+
+  const calculateDelivery =
+    async () => {
+      const address =
+        customer.address.trim();
+
+      const landmark =
+        customer.landmark.trim();
+
+      const locationLink =
+        customer.location.trim();
+
+      if (!address) {
+        setDelivery({
+          distance: null,
+          fee: 0,
+          loading: false,
+          error:
+            "Please enter your delivery address.",
+          source: "",
+        });
+
+        return;
+      }
+
+      setDelivery({
+        distance: null,
+        fee: 0,
+        loading: true,
+        error: "",
+        source: "",
+      });
+
+      try {
+        let coordinates =
+          null;
+
+        let source =
+          "";
+
+        /*
+          ======================================================
+          PRIORITY 1 — GOOGLE MAPS LINK
+          ======================================================
+        */
+
+        if (locationLink) {
+          coordinates =
+            extractCoordinatesFromGoogleMapsLink(
+              locationLink
+            );
+
+          if (coordinates) {
+            source =
+              "Google Maps location";
+          }
+        }
+
+        /*
+          ======================================================
+          PRIORITY 2 — ADDRESS + LANDMARK
+          ======================================================
+        */
+
+        if (!coordinates) {
+          coordinates =
+            await geocodeAddress();
+
+          if (coordinates) {
+            source =
+              landmark
+                ? "Address + landmark"
+                : "Delivery address";
+          }
+        }
+
+        /*
+          ======================================================
+          LOCATION NOT FOUND
+          ======================================================
+        */
+
+        if (!coordinates) {
+          setDelivery({
+            distance: null,
+            fee: 0,
+            loading: false,
+            error:
+              "We could not locate this address. Please enter a more complete address, add a nearby landmark, or paste a Google Maps location link.",
+            source: "",
+          });
+
+          return;
+        }
+
+        /*
+          ======================================================
+          IMPORTANT SAFETY CHECK
+
+          Prevent accidentally calculating a location
+          outside Pakistan.
+        ======================================================
+        */
+
+        if (
+          coordinates.lat < 23 ||
+          coordinates.lat > 38 ||
+          coordinates.lng < 60 ||
+          coordinates.lng > 78
+        ) {
+          setDelivery({
+            distance: null,
+            fee: 0,
+            loading: false,
+            error:
+              "The selected location does not appear to be in Pakistan. Please enter a Karachi delivery location.",
+            source: "",
+          });
+
+          return;
+        }
+
+        /*
+          ======================================================
+          ACTUAL ROAD DISTANCE
+          ======================================================
+        */
+
+        const distance =
+          await getRoadDistance(
+            coordinates.lat,
+            coordinates.lng
+          );
+
+        /*
+          ======================================================
+          DELIVERY FEE
+          ======================================================
+        */
+
+        const fee =
+          getDeliveryFee(distance);
+
+        /*
+          ======================================================
+          OUTSIDE DELIVERY AREA
+          ======================================================
+        */
+
+        if (fee === null) {
+          setDelivery({
+            distance,
+            fee: 0,
+            loading: false,
+            error:
+              `Your location is ${distance.toFixed(
+                1
+              )} km away. Unfortunately, our delivery area currently covers locations up to 15 km.`,
+            source,
+          });
+
+          return;
+        }
+
+        /*
+          ======================================================
+          SUCCESS
+          ======================================================
+        */
+
+        setDelivery({
+          distance,
+          fee,
+          loading: false,
+          error: "",
+          source,
+        });
+      } catch (error) {
+        console.error(
+          "Delivery calculation error:",
+          error
+        );
+
+        setDelivery({
+          distance: null,
+          fee: 0,
+          loading: false,
+          error:
+            "Unable to calculate the driving distance right now. Please check your address or Google Maps link and try again.",
+          source: "",
+        });
+      }
+    };
+
+  /* =========================================================
+     WHATSAPP ORDER
+  ========================================================= */
+
+  const orderOnWhatsApp =
+    () => {
+      if (!cart.length) {
+        return;
+      }
+
+      if (!customer.name.trim()) {
+        alert(
+          "Please enter your name."
+        );
+        return;
+      }
+
+      if (!customer.phone.trim()) {
+        alert(
+          "Please enter your phone number."
+        );
+        return;
+      }
+
+      if (!customer.address.trim()) {
+        alert(
+          "Please enter your delivery address."
+        );
+        return;
+      }
+
+      if (delivery.loading) {
+        alert(
+          "Please wait while delivery charges are being calculated."
+        );
+        return;
+      }
+
+      if (
+        delivery.distance ===
+          null ||
+        delivery.error
+      ) {
+        alert(
+          "Please calculate your delivery charges first."
+        );
+        return;
+      }
+
+      const restaurantNumber =
+        "923168937463";
+
+      let message =
+        "Assalam-o-Alaikum Jumma Gujjar Nihari & Pakwan!\n\n";
+
+      message +=
+        "I would like to place an order:\n\n";
+
+      cart.forEach(
+        (item, index) => {
+          message += `${index + 1}. ${
+            item.name
+          } x${item.quantity} — Rs. ${formatPrice(
+            item.price *
+              item.quantity
+          )}\n`;
+        }
+      );
+
+      message +=
+        "\n------------------------\n";
+
+      message += `Subtotal: Rs. ${formatPrice(
+        totalPrice
+      )}\n`;
+
+      message += `Driving Distance: ${delivery.distance.toFixed(
+        2
+      )} km\n`;
+
+      message += `Delivery Charges: Rs. ${formatPrice(
+        delivery.fee
+      )}\n`;
+
+      message += `TOTAL: Rs. ${formatPrice(
+        finalTotal
+      )}\n`;
+
+      message +=
+        "------------------------\n\n";
+
+      message +=
+        "Customer Details:\n";
+
+      message += `Name: ${customer.name}\n`;
+
+      message += `Phone: ${customer.phone}\n`;
+
+      message += `Address: ${customer.address}\n`;
+
+      if (customer.landmark.trim()) {
+        message += `Nearby Landmark: ${customer.landmark}\n`;
+      }
+
+      if (customer.location.trim()) {
+        message += `Google Maps Location: ${customer.location}\n`;
+      }
+
+      message +=
+        "\nPlease confirm my order.\nThank you!";
+
+      const whatsappUrl =
+        `https://wa.me/${restaurantNumber}?text=` +
+        encodeURIComponent(
+          message
+        );
+
+      window.open(
+        whatsappUrl,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    };
+
+  /* =========================================================
+     MENU ITEM
+  ========================================================= */
+
+  const MenuItem = ({
+    item,
+  }) => {
     const quantity =
       getQuantity(item.id);
 
@@ -822,9 +1114,9 @@ function Menu() {
     );
   };
 
-  /* =========================================
-     CATEGORY COMPONENT
-  ========================================= */
+  /* =========================================================
+     CATEGORY
+  ========================================================= */
 
   const Category = ({
     number,
@@ -862,11 +1154,15 @@ function Menu() {
     </div>
   );
 
+  /* =========================================================
+     RETURN
+  ========================================================= */
+
   return (
     <>
-      {/* =====================================
+      {/* =====================================================
           MENU
-      ===================================== */}
+      ===================================================== */}
 
       <section
         className="menu-section"
@@ -962,9 +1258,9 @@ function Menu() {
         </div>
       </section>
 
-      {/* =====================================
+      {/* =====================================================
           FLOATING CART
-      ===================================== */}
+      ===================================================== */}
 
       {totalItems > 0 &&
         !cartOpen && (
@@ -1001,9 +1297,9 @@ function Menu() {
           </button>
         )}
 
-      {/* =====================================
+      {/* =====================================================
           CART OVERLAY
-      ===================================== */}
+      ===================================================== */}
 
       {cartOpen && (
         <div
@@ -1143,9 +1439,12 @@ function Menu() {
               )}
             </div>
 
-            {/* CART BOTTOM */}
+            {/* =================================================
+                CART BOTTOM
+            ================================================= */}
 
             <div className="cart-bottom">
+
               {/* SUMMARY */}
 
               <div className="cart-summary">
@@ -1168,7 +1467,7 @@ function Menu() {
                     {delivery.distance !==
                       null &&
                       ` (${delivery.distance.toFixed(
-                        1
+                        2
                       )} km)`}
                   </span>
 
@@ -1198,9 +1497,12 @@ function Menu() {
                 </div>
               </div>
 
-              {/* CUSTOMER DETAILS */}
+              {/* =================================================
+                  CUSTOMER DETAILS
+              ================================================= */}
 
               <div className="customer-fields">
+
                 <div className="delivery-heading">
                   <MapPin
                     size={18}
@@ -1208,44 +1510,68 @@ function Menu() {
 
                   <div>
                     <strong>
-                      Delivery Address
+                      Delivery Details
                     </strong>
 
                     <span>
-                      Enter your details
-                      for accurate
-                      delivery.
+                      Enter your address
+                      so we can calculate
+                      your exact driving
+                      distance.
                     </span>
                   </div>
                 </div>
 
+                {/* NAME */}
+
+                <label className="field-label">
+                  Your Name
+                </label>
+
                 <input
                   type="text"
                   name="name"
-                  placeholder="Your Name"
+                  placeholder="Enter your name"
                   value={
                     customer.name
                   }
                   onChange={
                     handleCustomerChange
                   }
+                  autoComplete="name"
                 />
+
+                {/* PHONE */}
+
+                <label className="field-label">
+                  Phone Number
+                </label>
 
                 <input
                   type="tel"
                   name="phone"
-                  placeholder="Phone Number"
+                  placeholder="03XX XXXXXXX"
                   value={
                     customer.phone
                   }
                   onChange={
                     handleCustomerChange
                   }
+                  autoComplete="tel"
                 />
+
+                {/* ADDRESS */}
+
+                <label className="field-label">
+                  Delivery Address
+                  <span>
+                    Required
+                  </span>
+                </label>
 
                 <textarea
                   name="address"
-                  placeholder="Delivery Address — Karachi"
+                  placeholder="House / Flat No., Street, Block, Area, Karachi"
                   rows="3"
                   value={
                     customer.address
@@ -1253,27 +1579,53 @@ function Menu() {
                   onChange={
                     handleCustomerChange
                   }
+                  autoComplete="street-address"
                 />
 
-                {/* MAP INSTRUCTION */}
+                {/* LANDMARK */}
 
-                <div className="map-instruction">
-                  <MapPin
-                    size={17}
+                <label className="field-label">
+                  Nearby Landmark
+                  <span className="optional-label">
+                    Optional
+                  </span>
+                </label>
+
+                <input
+                  type="text"
+                  name="landmark"
+                  placeholder="e.g. near Lucky One Mall, mosque, school, petrol pump..."
+                  value={
+                    customer.landmark
+                  }
+                  onChange={
+                    handleCustomerChange
+                  }
+                />
+
+                {/* LOCATION LINK */}
+
+                <div className="location-link-heading">
+                  <Navigation
+                    size={16}
                   />
 
-                  <p>
-                    For faster and more
-                    accurate delivery,
-                    please open Google
-                    Maps, select your
-                    exact location and
-                    paste the location
-                    link below.
-                  </p>
-                </div>
+                  <div>
+                    <label className="field-label">
+                      Google Maps Location
+                      <span className="optional-label">
+                        Optional
+                      </span>
+                    </label>
 
-                {/* GOOGLE MAPS */}
+                    <small>
+                      Paste your Google
+                      Maps location link
+                      for the most accurate
+                      result.
+                    </small>
+                  </div>
+                </div>
 
                 <button
                   type="button"
@@ -1286,8 +1638,7 @@ function Menu() {
                     size={17}
                   />
 
-                  Choose Location
-                  on Google Maps
+                  Open Google Maps
 
                   <ArrowUpRight
                     size={16}
@@ -1295,16 +1646,31 @@ function Menu() {
                 </button>
 
                 <input
-                  type="text"
+                  type="url"
                   name="location"
-                  placeholder="Paste Google Maps location link"
+                  placeholder="Paste Google Maps link here"
                   value={
                     customer.location
                   }
                   onChange={
                     handleCustomerChange
                   }
+                  inputMode="url"
                 />
+
+                <div className="location-help">
+                  <Navigation
+                    size={14}
+                  />
+
+                  <span>
+                    A Google Maps link
+                    containing your exact
+                    location gives us the
+                    most accurate delivery
+                    calculation.
+                  </span>
+                </div>
 
                 {/* CALCULATE */}
 
@@ -1318,52 +1684,84 @@ function Menu() {
                     delivery.loading
                   }
                 >
-                  {delivery.loading
-                    ? "Calculating..."
-                    : "Calculate Delivery Charges"}
+                  {delivery.loading ? (
+                    <>
+                      <span className="delivery-spinner"></span>
+                      Calculating Road
+                      Distance...
+                    </>
+                  ) : (
+                    <>
+                      <Navigation
+                        size={17}
+                      />
+                      Calculate Delivery
+                      Charges
+                    </>
+                  )}
                 </button>
 
-                {/* DELIVERY RESULT */}
+                {/* SUCCESS */}
 
                 {delivery.distance !==
                   null &&
                   !delivery.error &&
                   !delivery.loading && (
                     <div className="delivery-result">
-                      <div>
-                        <span>
-                          Distance
-                        </span>
 
-                        <strong>
-                          {delivery.distance.toFixed(
-                            1
-                          )}{" "}
-                          km
-                        </strong>
+                      <div className="delivery-success-title">
+                        <CheckCircle2
+                          size={17}
+                        />
+
+                        <span>
+                          Delivery available
+                        </span>
                       </div>
 
-                      <div>
-                        <span>
-                          Delivery
-                        </span>
+                      <div className="delivery-result-grid">
+                        <div>
+                          <span>
+                            Driving Distance
+                          </span>
 
-                        <strong>
-                          Rs.{" "}
-                          {formatPrice(
-                            delivery.fee
-                          )}
-                        </strong>
+                          <strong>
+                            {delivery.distance.toFixed(
+                              2
+                            )}{" "}
+                            km
+                          </strong>
+                        </div>
+
+                        <div>
+                          <span>
+                            Delivery Charges
+                          </span>
+
+                          <strong>
+                            Rs.{" "}
+                            {formatPrice(
+                              delivery.fee
+                            )}
+                          </strong>
+                        </div>
                       </div>
+
+                      <small className="delivery-source">
+                        Calculated using road
+                        distance
+                      </small>
                     </div>
                   )}
 
+                {/* ERROR */}
+
                 {delivery.error && (
-                  <p className="delivery-error">
-                    {
-                      delivery.error
-                    }
-                  </p>
+                  <div className="delivery-error">
+                    <span>
+                      {delivery.error}
+                    </span>
+                  </div>
                 )}
               </div>
 

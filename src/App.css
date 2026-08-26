@@ -3960,3 +3960,648 @@ a {
   }
 
 }
+
+/* =========================================================
+   DELIVERY FORM — PRODUCTION
+========================================================= */
+
+.customer-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* =========================================================
+   FIELD LABELS
+========================================================= */
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: 5px;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  color: #222;
+}
+
+.field-label > span {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  padding: 3px 7px;
+
+  border-radius: 20px;
+
+  background: rgba(190, 26, 26, 0.08);
+  color: #b71919;
+}
+
+.field-label .optional-label {
+  background: rgba(0, 0, 0, 0.06);
+  color: #777;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.customer-fields input,
+.customer-fields textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #dedede;
+  border-radius: 10px;
+
+  background: #fff;
+
+  padding: 13px 14px;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  color: #222;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.customer-fields textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.55;
+}
+
+.customer-fields input::placeholder,
+.customer-fields textarea::placeholder {
+  color: #999;
+}
+
+.customer-fields input:focus,
+.customer-fields textarea:focus {
+  border-color: #bd1717;
+
+  background: #fff;
+
+  box-shadow:
+    0 0 0 3px rgba(189, 23, 23, 0.08);
+}
+
+/* =========================================================
+   LOCATION LINK HEADING
+========================================================= */
+
+.location-link-heading {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  margin-top: 8px;
+
+  padding-top: 8px;
+
+  border-top: 1px solid #eee;
+}
+
+.location-link-heading > svg {
+  flex-shrink: 0;
+
+  margin-top: 3px;
+
+  color: #bd1717;
+}
+
+.location-link-heading .field-label {
+  margin: 0;
+}
+
+.location-link-heading small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #888;
+
+  font-size: 10px;
+
+  line-height: 1.45;
+}
+
+/* =========================================================
+   GOOGLE MAPS BUTTON
+========================================================= */
+
+.map-location-button {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  background: #fafafa;
+
+  color: #222;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.map-location-button svg:first-child {
+  color: #bd1717;
+}
+
+.map-location-button svg:last-child {
+  margin-left: auto;
+}
+
+.map-location-button:hover {
+  background: #f5f5f5;
+
+  border-color: #c9c9c9;
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   LOCATION HELP
+========================================================= */
+
+.location-help {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 7px;
+
+  padding: 10px 11px;
+
+  border-radius: 8px;
+
+  background: #f8f8f8;
+
+  color: #777;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.location-help svg {
+  flex-shrink: 0;
+
+  margin-top: 2px;
+
+  color: #bd1717;
+}
+
+/* =========================================================
+   CALCULATE DELIVERY BUTTON
+========================================================= */
+
+.calculate-delivery {
+  width: 100%;
+
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  margin-top: 5px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #bd1717;
+
+  color: #fff;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 20px rgba(189, 23, 23, 0.16);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.calculate-delivery:hover:not(:disabled) {
+  background: #a91313;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 10px 25px rgba(189, 23, 23, 0.22);
+}
+
+.calculate-delivery:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.calculate-delivery:disabled {
+  opacity: 0.7;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* =========================================================
+   LOADING SPINNER
+========================================================= */
+
+.delivery-spinner {
+  width: 15px;
+  height: 15px;
+
+  border: 2px solid rgba(255, 255, 255, 0.35);
+
+  border-top-color: #fff;
+
+  border-radius: 50%;
+
+  animation:
+    delivery-spin 0.7s linear infinite;
+}
+
+@keyframes delivery-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   DELIVERY SUCCESS
+========================================================= */
+
+.delivery-result {
+  margin-top: 4px;
+
+  padding: 14px;
+
+  border: 1px solid rgba(31, 130, 75, 0.2);
+
+  border-radius: 11px;
+
+  background: rgba(31, 130, 75, 0.05);
+}
+
+.delivery-success-title {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 12px;
+
+  color: #237546;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+}
+
+.delivery-result-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+.delivery-result-grid > div {
+  padding: 10px;
+
+  border-radius: 8px;
+
+  background: #fff;
+}
+
+.delivery-result-grid span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #888;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+.delivery-result-grid strong {
+  display: block;
+
+  color: #222;
+
+  font-size: 15px;
+
+  font-weight: 900;
+}
+
+.delivery-result-grid > div:last-child strong {
+  color: #bd1717;
+}
+
+.delivery-source {
+  display: block;
+
+  margin-top: 9px;
+
+  color: #777;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   DELIVERY ERROR
+========================================================= */
+
+.delivery-error {
+  margin-top: 4px;
+
+  padding: 12px 13px;
+
+  border: 1px solid rgba(190, 30, 30, 0.18);
+
+  border-radius: 9px;
+
+  background: rgba(190, 30, 30, 0.06);
+
+  color: #a71919;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   DELIVERY HEADING
+========================================================= */
+
+.delivery-heading {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  padding-bottom: 9px;
+
+  margin-bottom: 2px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.delivery-heading > svg {
+  flex-shrink: 0;
+
+  margin-top: 2px;
+
+  color: #bd1717;
+}
+
+.delivery-heading strong {
+  display: block;
+
+  color: #222;
+
+  font-size: 13px;
+
+  font-weight: 900;
+}
+
+.delivery-heading span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #888;
+
+  font-size: 10px;
+
+  line-height: 1.45;
+}
+
+/* =========================================================
+   CART SUMMARY IMPROVEMENTS
+========================================================= */
+
+.cart-summary {
+  margin-bottom: 17px;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.summary-row span {
+  color: #777;
+
+  font-size: 11px;
+}
+
+.summary-row strong {
+  color: #222;
+
+  font-size: 12px;
+}
+
+.summary-divider {
+  width: 100%;
+  height: 1px;
+
+  margin: 12px 0;
+
+  background: #e7e7e7;
+}
+
+.summary-total span {
+  color: #222;
+
+  font-size: 13px;
+
+  font-weight: 900;
+}
+
+.summary-total strong {
+  color: #bd1717;
+
+  font-size: 18px;
+
+  font-weight: 900;
+}
+
+/* =========================================================
+   WHATSAPP BUTTON
+========================================================= */
+
+.whatsapp-order {
+  width: 100%;
+
+  min-height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  margin-top: 15px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #bd1717;
+
+  color: #fff;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.whatsapp-order:hover {
+  background: #a91313;
+
+  transform: translateY(-1px);
+}
+
+.cart-note {
+  margin: 9px 0 0;
+
+  color: #999;
+
+  text-align: center;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .customer-fields {
+    gap: 9px;
+  }
+
+  .field-label {
+    font-size: 10px;
+  }
+
+  .customer-fields input,
+  .customer-fields textarea {
+    font-size: 12px;
+
+    padding: 12px;
+  }
+
+  .delivery-result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-result-grid > div {
+    padding: 9px;
+  }
+
+  .calculate-delivery {
+    min-height: 50px;
+
+    font-size: 10px;
+  }
+
+  .map-location-button {
+    min-height: 45px;
+
+    font-size: 10px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+  .delivery-result {
+    padding: 11px;
+  }
+
+  .location-help {
+    font-size: 9px;
+  }
+
+  .delivery-result-grid strong {
+    font-size: 14px;
+  }
+}

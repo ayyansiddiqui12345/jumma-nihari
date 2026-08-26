@@ -1,57 +1,113 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
+
 import { useState } from "react";
+
 import L from "leaflet";
+
 import "leaflet/dist/leaflet.css";
 
-// Fix Leaflet marker icons
+/* =========================================
+   FIX LEAFLET MARKER ICONS
+========================================= */
+
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+
   iconUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-const RESTAURANT_LOCATION = [24.8964922, 67.0453184];
+/* =========================================
+   RESTAURANT LOCATION
+========================================= */
+
+const RESTAURANT_LOCATION = [
+  24.8964922,
+  67.0453184,
+];
+
+/* =========================================
+   CUSTOMER LOCATION MARKER
+========================================= */
 
 function LocationMarker({ onLocationSelect }) {
   const [position, setPosition] = useState(null);
 
   useMapEvents({
-    click(e) {
-      const newPosition = [e.latlng.lat, e.latlng.lng];
+    click(event) {
+      const newPosition = [
+        event.latlng.lat,
+        event.latlng.lng,
+      ];
 
       setPosition(newPosition);
 
       onLocationSelect({
-        lat: e.latlng.lat,
-        lng: e.latlng.lng,
+        lat: event.latlng.lat,
+        lng: event.latlng.lng,
       });
     },
   });
 
-  return position ? <Marker position={position} /> : null;
+  return position ? (
+    <Marker position={position}>
+      <Popup>
+        <strong>Your Delivery Location</strong>
+        <br />
+        Selected location
+      </Popup>
+    </Marker>
+  ) : null;
 }
 
-function DeliveryMap({ onLocationSelect }) {
+/* =========================================
+   DELIVERY MAP
+========================================= */
+
+function DeliveryMap({
+  onLocationSelect,
+}) {
   return (
     <div className="delivery-map-wrapper">
 
+      {/* HEADER */}
+
       <div className="delivery-map-header">
+
         <div>
-          <span className="map-label">DELIVERY LOCATION</span>
-          <h4>Select your location</h4>
+
+          <span className="map-label">
+            DELIVERY LOCATION
+          </span>
+
+          <h4>
+            Select your location
+          </h4>
+
         </div>
 
         <span className="map-pin-text">
           Click on the map
         </span>
+
       </div>
 
+      {/* MAP */}
+
       <div className="delivery-map">
+
         <MapContainer
           center={RESTAURANT_LOCATION}
           zoom={13}
@@ -63,21 +119,43 @@ function DeliveryMap({ onLocationSelect }) {
         >
 
           <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
+            attribution="&copy; OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          <Marker position={RESTAURANT_LOCATION} />
+          {/* RESTAURANT */}
+
+          <Marker
+            position={RESTAURANT_LOCATION}
+          >
+
+            <Popup>
+              <strong>
+                Jumma Gujjar Nihari
+              </strong>
+
+              <br />
+
+              Restaurant Location
+            </Popup>
+
+          </Marker>
+
+          {/* CUSTOMER */}
 
           <LocationMarker
-            onLocationSelect={onLocationSelect}
+            onLocationSelect={
+              onLocationSelect
+            }
           />
 
         </MapContainer>
+
       </div>
 
       <p className="map-help">
-        📍 Tap anywhere on the map to select your delivery location.
+        📍 Click on the map to select your
+        exact delivery location.
       </p>
 
     </div>
