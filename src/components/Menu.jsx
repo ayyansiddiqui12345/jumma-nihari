@@ -53,7 +53,7 @@ function Menu() {
   });
 
   /* =========================================
-     MENU DATA
+     NIHARI
   ========================================= */
 
   const nihariItems = [
@@ -118,13 +118,71 @@ function Menu() {
     {
       id: 8,
       category: "Nihari",
-      urdu: "اسپیشل نہاری تھالہ",
-      name: "Special Nihari Tashla",
+      urdu: "جمّہ گجّر اسپیشل نہاری تھالی",
+      name: "Jumma Gujjar Special Nihari Thaali",
       description: "The ultimate Jumma Gujjar specialty",
-      price: 2200,
+      price: 2400,
+      featured: true,
+    },
+
+    /* =========================================
+       NEW NIHARI TINS
+    ========================================= */
+
+    {
+      id: 22,
+      category: "Nihari",
+      urdu: "جمّہ گجّر نہاری ٹن 450 گرام",
+      name: "Jumma Gujjar Nihari Tin 450 GM",
+      description: "Our signature Nihari packed in a convenient 450 GM tin",
+      price: 800,
+      featured: true,
+    },
+    {
+      id: 23,
+      category: "Nihari",
+      urdu: "جمّہ گجّر نہاری ٹن 900 گرام",
+      name: "Jumma Gujjar Nihari Tin 900 GM",
+      description: "Our signature Nihari packed in a generous 900 GM tin",
+      price: 1600,
       featured: true,
     },
   ];
+
+  /* =========================================
+     EXTRA NIHARI ITEMS
+  ========================================= */
+
+  const extras = [
+    {
+      id: 24,
+      category: "Extras",
+      urdu: "ایکسٹرا مغز",
+      name: "Extra Maghaz",
+      description: "Rich and traditional brain topping",
+      price: 400,
+    },
+    {
+      id: 25,
+      category: "Extras",
+      urdu: "ایکسٹرا نلی",
+      name: "Extra Nalli",
+      description: "Tender bone marrow served extra",
+      price: 400,
+    },
+    {
+      id: 26,
+      category: "Extras",
+      urdu: "ایکسٹرا بوٹی",
+      name: "Extra Boti",
+      description: "Extra tender Nihari meat pieces",
+      price: 300,
+    },
+  ];
+
+  /* =========================================
+     SIDES
+  ========================================= */
 
   const sides = [
     {
@@ -141,9 +199,13 @@ function Menu() {
       urdu: "رائتہ",
       name: "Raita",
       description: "Cool and creamy yogurt dip",
-      price: 50,
+      price: 80,
     },
   ];
+
+  /* =========================================
+     BIRYANI & PULAO
+  ========================================= */
 
   const biryaniItems = [
     {
@@ -213,6 +275,10 @@ function Menu() {
     },
   ];
 
+  /* =========================================
+     DRINKS & DESSERTS
+  ========================================= */
+
   const drinks = [
     {
       id: 19,
@@ -242,7 +308,7 @@ function Menu() {
   ];
 
   /* =========================================
-     CART
+     CART FUNCTIONS
   ========================================= */
 
   const addToCart = (item) => {
@@ -262,7 +328,13 @@ function Menu() {
         );
       }
 
-      return [...current, { ...item, quantity: 1 }];
+      return [
+        ...current,
+        {
+          ...item,
+          quantity: 1,
+        },
+      ];
     });
   };
 
@@ -270,7 +342,10 @@ function Menu() {
     setCart((current) =>
       current.map((item) =>
         item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+            }
           : item
       )
     );
@@ -281,7 +356,10 @@ function Menu() {
       current
         .map((item) =>
           item.id === id
-            ? { ...item, quantity: item.quantity - 1 }
+            ? {
+                ...item,
+                quantity: item.quantity - 1,
+              }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -295,7 +373,10 @@ function Menu() {
   };
 
   const getQuantity = (id) => {
-    const item = cart.find((item) => item.id === id);
+    const item = cart.find(
+      (item) => item.id === id
+    );
+
     return item ? item.quantity : 0;
   };
 
@@ -304,19 +385,25 @@ function Menu() {
   ========================================= */
 
   const totalItems = cart.reduce(
-    (total, item) => total + item.quantity,
+    (total, item) =>
+      total + item.quantity,
     0
   );
 
   const totalPrice = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) =>
+      total +
+      item.price * item.quantity,
     0
   );
 
-  const finalTotal = totalPrice + delivery.fee;
+  const finalTotal =
+    totalPrice + delivery.fee;
 
   const formatPrice = (price) =>
-    new Intl.NumberFormat("en-PK").format(price);
+    new Intl.NumberFormat("en-PK").format(
+      price
+    );
 
   /* =========================================
      CUSTOMER DETAILS
@@ -341,7 +428,7 @@ function Menu() {
   };
 
   /* =========================================
-     OPEN GOOGLE MAPS
+     GOOGLE MAPS
   ========================================= */
 
   const openGoogleMaps = () => {
@@ -352,7 +439,7 @@ function Menu() {
   };
 
   /* =========================================
-     DISTANCE
+     DISTANCE CALCULATION
   ========================================= */
 
   const calculateDistance = (
@@ -364,15 +451,23 @@ function Menu() {
     const R = 6371;
 
     const dLat =
-      ((lat2 - lat1) * Math.PI) / 180;
+      ((lat2 - lat1) *
+        Math.PI) /
+      180;
 
     const dLon =
-      ((lon2 - lon1) * Math.PI) / 180;
+      ((lon2 - lon1) *
+        Math.PI) /
+      180;
 
     const a =
       Math.sin(dLat / 2) ** 2 +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
+      Math.cos(
+        (lat1 * Math.PI) / 180
+      ) *
+        Math.cos(
+          (lat2 * Math.PI) / 180
+        ) *
         Math.sin(dLon / 2) ** 2;
 
     const c =
@@ -390,9 +485,11 @@ function Menu() {
   ========================================= */
 
   const getDeliveryFee = (distance) => {
-    const rate = DELIVERY_RATES.find(
-      (item) => distance <= item.maxDistance
-    );
+    const rate =
+      DELIVERY_RATES.find(
+        (item) =>
+          distance <= item.maxDistance
+      );
 
     return rate ? rate.fee : null;
   };
@@ -401,93 +498,140 @@ function Menu() {
      CALCULATE DELIVERY
   ========================================= */
 
-  const calculateDelivery = async () => {
-    if (!customer.address.trim()) {
-      setDelivery({
-        distance: null,
-        fee: 0,
-        loading: false,
-        error: "Please enter your delivery address.",
-      });
-
-      return;
-    }
-
+ const calculateDelivery = async () => {
+  if (!customer.address.trim()) {
     setDelivery({
       distance: null,
       fee: 0,
-      loading: true,
-      error: "",
+      loading: false,
+      error: "Please enter your delivery address.",
     });
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=pk&q=${encodeURIComponent(
-          customer.address
-        )}`
-      );
+    return;
+  }
 
-      if (!response.ok) {
-        throw new Error("Address lookup failed");
-      }
+  setDelivery({
+    distance: null,
+    fee: 0,
+    loading: true,
+    error: "",
+  });
 
-      const results = await response.json();
+  try {
+    /* =========================================
+       STEP 1 — FIND CUSTOMER LOCATION
+    ========================================= */
 
-      if (!results.length) {
-        setDelivery({
-          distance: null,
-          fee: 0,
-          loading: false,
-          error:
-            "Address not found. Please enter a more complete Karachi address.",
-        });
+    const geocodeUrl =
+      `https://nominatim.openstreetmap.org/search` +
+      `?format=json` +
+      `&limit=1` +
+      `&countrycodes=pk` +
+      `&q=${encodeURIComponent(customer.address)}`;
 
-        return;
-      }
+    const geocodeResponse = await fetch(geocodeUrl, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
-      const customerLat = parseFloat(results[0].lat);
-      const customerLng = parseFloat(results[0].lon);
+    if (!geocodeResponse.ok) {
+      throw new Error("Address lookup failed.");
+    }
 
-      const distance = calculateDistance(
-        RESTAURANT_LOCATION.lat,
-        RESTAURANT_LOCATION.lng,
-        customerLat,
-        customerLng
-      );
+    const results = await geocodeResponse.json();
 
-      const fee = getDeliveryFee(distance);
-
-      if (fee === null) {
-        setDelivery({
-          distance,
-          fee: 0,
-          loading: false,
-          error:
-            "Sorry, this address is outside our delivery area.",
-        });
-
-        return;
-      }
-
-      setDelivery({
-        distance,
-        fee,
-        loading: false,
-        error: "",
-      });
-    } catch {
+    if (!results || results.length === 0) {
       setDelivery({
         distance: null,
         fee: 0,
         loading: false,
         error:
-          "Unable to calculate delivery charges. Please try again.",
+          "Address not found. Please enter a complete Karachi address.",
       });
-    }
-  };
 
+      return;
+    }
+
+    const customerLat = parseFloat(results[0].lat);
+    const customerLng = parseFloat(results[0].lon);
+
+    /* =========================================
+       STEP 2 — CALCULATE ACTUAL ROAD DISTANCE
+       USING OSRM
+    ========================================= */
+
+    const routeUrl =
+      `https://router.project-osrm.org/route/v1/driving/` +
+      `${RESTAURANT_LOCATION.lng},${RESTAURANT_LOCATION.lat};` +
+      `${customerLng},${customerLat}` +
+      `?overview=false`;
+
+    const routeResponse = await fetch(routeUrl);
+
+    if (!routeResponse.ok) {
+      throw new Error("Route calculation failed.");
+    }
+
+    const routeData = await routeResponse.json();
+
+    if (
+      routeData.code !== "Ok" ||
+      !routeData.routes ||
+      !routeData.routes.length
+    ) {
+      throw new Error("Unable to calculate driving route.");
+    }
+
+    /* OSRM returns distance in meters */
+
+    const distance =
+      routeData.routes[0].distance / 1000;
+
+    /* =========================================
+       STEP 3 — DELIVERY FEE
+    ========================================= */
+
+    const fee = getDeliveryFee(distance);
+
+    if (fee === null) {
+      setDelivery({
+        distance,
+        fee: 0,
+        loading: false,
+        error:
+          `Your location is ${distance.toFixed(
+            1
+          )} km away. Unfortunately, it is outside our 15 km delivery area.`,
+      });
+
+      return;
+    }
+
+    /* =========================================
+       STEP 4 — SUCCESS
+    ========================================= */
+
+    setDelivery({
+      distance,
+      fee,
+      loading: false,
+      error: "",
+    });
+  } catch (error) {
+    console.error("Delivery calculation error:", error);
+
+    setDelivery({
+      distance: null,
+      fee: 0,
+      loading: false,
+      error:
+        "Unable to calculate the driving distance. Please check your address and try again.",
+    });
+  }
+};
   /* =========================================
-     WHATSAPP
+     WHATSAPP ORDER
   ========================================= */
 
   const orderOnWhatsApp = () => {
@@ -504,12 +648,16 @@ function Menu() {
     }
 
     if (!customer.address.trim()) {
-      alert("Please enter your delivery address.");
+      alert(
+        "Please enter your delivery address."
+      );
       return;
     }
 
     if (delivery.loading) {
-      alert("Please wait while delivery charges are calculated.");
+      alert(
+        "Please wait while delivery charges are calculated."
+      );
       return;
     }
 
@@ -517,39 +665,57 @@ function Menu() {
       delivery.distance === null ||
       delivery.error
     ) {
-      alert("Please calculate your delivery charges first.");
+      alert(
+        "Please calculate your delivery charges first."
+      );
       return;
     }
 
-    const restaurantNumber = "923168937463";
+    const restaurantNumber =
+      "923168937463";
 
     let message =
       "Assalam-o-Alaikum Jumma Gujjar Nihari & Pakwan!\n\n";
 
-    message += "I would like to place an order:\n\n";
+    message +=
+      "I would like to place an order:\n\n";
 
     cart.forEach((item, index) => {
-      message += `${index + 1}. ${item.name} x${
-        item.quantity
-      } — Rs. ${formatPrice(
+      message += `${index + 1}. ${
+        item.name
+      } x${item.quantity} — Rs. ${formatPrice(
         item.price * item.quantity
       )}\n`;
     });
 
-    message += "\n------------------------\n";
-    message += `Subtotal: Rs. ${formatPrice(totalPrice)}\n`;
+    message +=
+      "\n------------------------\n";
+
+    message += `Subtotal: Rs. ${formatPrice(
+      totalPrice
+    )}\n`;
+
     message += `Delivery Distance: ${delivery.distance.toFixed(
       1
     )} km\n`;
+
     message += `Delivery Charges: Rs. ${formatPrice(
       delivery.fee
     )}\n`;
-    message += `TOTAL: Rs. ${formatPrice(finalTotal)}\n`;
-    message += "------------------------\n\n";
+
+    message += `TOTAL: Rs. ${formatPrice(
+      finalTotal
+    )}\n`;
+
+    message +=
+      "------------------------\n\n";
 
     message += "Customer Details:\n";
+
     message += `Name: ${customer.name}\n`;
+
     message += `Phone: ${customer.phone}\n`;
+
     message += `Address: ${customer.address}\n`;
 
     if (customer.location.trim()) {
@@ -563,20 +729,26 @@ function Menu() {
       `https://wa.me/${restaurantNumber}?text=` +
       encodeURIComponent(message);
 
-    window.open(whatsappUrl, "_blank");
+    window.open(
+      whatsappUrl,
+      "_blank"
+    );
   };
 
   /* =========================================
-     MENU ITEM
+     MENU ITEM COMPONENT
   ========================================= */
 
   const MenuItem = ({ item }) => {
-    const quantity = getQuantity(item.id);
+    const quantity =
+      getQuantity(item.id);
 
     return (
       <div
         className={`menu-card ${
-          item.featured ? "featured-card" : ""
+          item.featured
+            ? "featured-card"
+            : ""
         }`}
       >
         <div className="menu-card-top">
@@ -587,24 +759,33 @@ function Menu() {
 
             <h4>{item.name}</h4>
 
-            <p>{item.description}</p>
+            <p>
+              {item.description}
+            </p>
           </div>
 
           <div className="menu-price">
             <small>RS.</small>
+
             <strong>
-              {formatPrice(item.price)}
+              {formatPrice(
+                item.price
+              )}
             </strong>
           </div>
         </div>
 
         <div className="menu-card-bottom">
-          <span>JUMMA GUJJAR</span>
+          <span>
+            JUMMA GUJJAR
+          </span>
 
           {quantity === 0 ? (
             <button
               className="add-button"
-              onClick={() => addToCart(item)}
+              onClick={() =>
+                addToCart(item)
+              }
             >
               <Plus size={14} />
               ADD
@@ -613,17 +794,23 @@ function Menu() {
             <div className="quantity-control">
               <button
                 onClick={() =>
-                  decreaseQuantity(item.id)
+                  decreaseQuantity(
+                    item.id
+                  )
                 }
               >
                 <Minus size={13} />
               </button>
 
-              <span>{quantity}</span>
+              <span>
+                {quantity}
+              </span>
 
               <button
                 onClick={() =>
-                  increaseQuantity(item.id)
+                  increaseQuantity(
+                    item.id
+                  )
                 }
               >
                 <Plus size={13} />
@@ -635,9 +822,56 @@ function Menu() {
     );
   };
 
+  /* =========================================
+     CATEGORY COMPONENT
+  ========================================= */
+
+  const Category = ({
+    number,
+    subtitle,
+    title,
+    items,
+  }) => (
+    <div className="menu-category">
+      <div className="menu-category-heading">
+        <div>
+          <span className="category-number">
+            {number}
+          </span>
+
+          <div>
+            <small>
+              {subtitle}
+            </small>
+
+            <h3>{title}</h3>
+          </div>
+        </div>
+
+        <span className="category-line"></span>
+      </div>
+
+      <div className="nihari-grid">
+        {items.map((item) => (
+          <MenuItem
+            item={item}
+            key={item.id}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <>
-      <section className="menu-section" id="menu">
+      {/* =====================================
+          MENU
+      ===================================== */}
+
+      <section
+        className="menu-section"
+        id="menu"
+      >
         <div className="menu-header">
           <div className="menu-label">
             <span></span>
@@ -647,178 +881,136 @@ function Menu() {
           <div className="menu-heading-row">
             <h2>
               The Taste
-              <span>Of Tradition.</span>
+              <span>
+                Of Tradition.
+              </span>
             </h2>
 
             <p>
-              Discover the flavors that have made
-              Jumma Gujjar a name for authentic
-              Karachi Nihari and traditional
+              Discover the flavors
+              that have made Jumma
+              Gujjar a name for
+              authentic Karachi
+              Nihari and traditional
               Pakistani cuisine.
             </p>
           </div>
         </div>
 
-        {/* NIHARI */}
+        <Category
+          number="01"
+          subtitle="OUR SPECIALTY"
+          title="Nihari"
+          items={nihariItems}
+        />
 
-        <div className="menu-category">
-          <div className="menu-category-heading">
-            <div>
-              <span className="category-number">01</span>
+        <Category
+          number="02"
+          subtitle="EXTRAS"
+          title="Nihari Extras"
+          items={extras}
+        />
 
-              <div>
-                <small>OUR SPECIALTY</small>
-                <h3>Nihari</h3>
-              </div>
-            </div>
+        <Category
+          number="03"
+          subtitle="ON THE SIDE"
+          title="Breads & Sides"
+          items={sides}
+        />
 
-            <span className="category-line"></span>
-          </div>
+        <Category
+          number="04"
+          subtitle="TRADITIONAL FAVORITES"
+          title="Biryani & Pulao"
+          items={biryaniItems}
+        />
 
-          <div className="nihari-grid">
-            {nihariItems.map((item) => (
-              <MenuItem
-                item={item}
-                key={item.id}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* SIDES */}
-
-        <div className="menu-category">
-          <div className="menu-category-heading">
-            <div>
-              <span className="category-number">02</span>
-
-              <div>
-                <small>ON THE SIDE</small>
-                <h3>Breads & Sides</h3>
-              </div>
-            </div>
-
-            <span className="category-line"></span>
-          </div>
-
-          <div className="nihari-grid">
-            {sides.map((item) => (
-              <MenuItem
-                item={item}
-                key={item.id}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* BIRYANI */}
-
-        <div className="menu-category">
-          <div className="menu-category-heading">
-            <div>
-              <span className="category-number">03</span>
-
-              <div>
-                <small>
-                  TRADITIONAL FAVORITES
-                </small>
-
-                <h3>Biryani & Pulao</h3>
-              </div>
-            </div>
-
-            <span className="category-line"></span>
-          </div>
-
-          <div className="nihari-grid">
-            {biryaniItems.map((item) => (
-              <MenuItem
-                item={item}
-                key={item.id}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* DRINKS */}
-
-        <div className="menu-category">
-          <div className="menu-category-heading">
-            <div>
-              <span className="category-number">04</span>
-
-              <div>
-                <small>
-                  SWEET & REFRESHING
-                </small>
-
-                <h3>Desserts & Drinks</h3>
-              </div>
-            </div>
-
-            <span className="category-line"></span>
-          </div>
-
-          <div className="nihari-grid">
-            {drinks.map((item) => (
-              <MenuItem
-                item={item}
-                key={item.id}
-              />
-            ))}
-          </div>
-        </div>
+        <Category
+          number="05"
+          subtitle="SWEET & REFRESHING"
+          title="Desserts & Drinks"
+          items={drinks}
+        />
 
         {/* CTA */}
 
         <div className="menu-cta">
           <div>
-            <span>READY TO ORDER?</span>
+            <span>
+              READY TO ORDER?
+            </span>
 
             <h3>
               Taste the tradition.
-              <em>Made for you.</em>
+              <em>
+                Made for you.
+              </em>
             </h3>
           </div>
 
           <button
             className="menu-cart-cta"
-            onClick={() => setCartOpen(true)}
+            onClick={() =>
+              setCartOpen(true)
+            }
           >
             View Your Order
-            <ArrowUpRight size={18} />
+            <ArrowUpRight
+              size={18}
+            />
           </button>
         </div>
       </section>
 
-      {/* FLOATING CART */}
+      {/* =====================================
+          FLOATING CART
+      ===================================== */}
 
-      {totalItems > 0 && !cartOpen && (
-        <button
-          className="floating-cart"
-          onClick={() => setCartOpen(true)}
-        >
-          <span className="floating-cart-icon">
-            <ShoppingBag size={19} />
-            <b>{totalItems}</b>
-          </span>
+      {totalItems > 0 &&
+        !cartOpen && (
+          <button
+            className="floating-cart"
+            onClick={() =>
+              setCartOpen(true)
+            }
+          >
+            <span className="floating-cart-icon">
+              <ShoppingBag
+                size={19}
+              />
 
-          <span>Your Order</span>
+              <b>
+                {totalItems}
+              </b>
+            </span>
 
-          <strong>
-            Rs. {formatPrice(totalPrice)}
-          </strong>
+            <span>
+              Your Order
+            </span>
 
-          <ArrowUpRight size={18} />
-        </button>
-      )}
+            <strong>
+              Rs.{" "}
+              {formatPrice(
+                totalPrice
+              )}
+            </strong>
 
-      {/* CART */}
+            <ArrowUpRight
+              size={18}
+            />
+          </button>
+        )}
+
+      {/* =====================================
+          CART OVERLAY
+      ===================================== */}
 
       {cartOpen && (
         <div
           className="cart-overlay"
-          onClick={() => setCartOpen(false)}
+          onClick={() =>
+            setCartOpen(false)
+          }
         >
           <aside
             className="cart-drawer"
@@ -826,10 +1018,17 @@ function Menu() {
               e.stopPropagation()
             }
           >
+            {/* CART HEADER */}
+
             <div className="cart-header">
               <div>
-                <small>YOUR SELECTION</small>
-                <h2>Your Order</h2>
+                <small>
+                  YOUR SELECTION
+                </small>
+
+                <h2>
+                  Your Order
+                </h2>
               </div>
 
               <button
@@ -842,15 +1041,22 @@ function Menu() {
               </button>
             </div>
 
-            {/* ITEMS */}
+            {/* CART ITEMS */}
 
             <div className="cart-items">
               {cart.length === 0 ? (
                 <div className="empty-cart">
-                  <ShoppingBag size={38} />
-                  <h3>Your cart is empty</h3>
+                  <ShoppingBag
+                    size={38}
+                  />
+
+                  <h3>
+                    Your cart is empty
+                  </h3>
+
                   <p>
-                    Add something delicious from
+                    Add something
+                    delicious from
                     our menu.
                   </p>
                 </div>
@@ -865,7 +1071,9 @@ function Menu() {
                         {item.urdu}
                       </span>
 
-                      <h4>{item.name}</h4>
+                      <h4>
+                        {item.name}
+                      </h4>
 
                       <small>
                         Rs.{" "}
@@ -885,11 +1093,15 @@ function Menu() {
                             )
                           }
                         >
-                          <Minus size={12} />
+                          <Minus
+                            size={12}
+                          />
                         </button>
 
                         <strong>
-                          {item.quantity}
+                          {
+                            item.quantity
+                          }
                         </strong>
 
                         <button
@@ -899,7 +1111,9 @@ function Menu() {
                             )
                           }
                         >
-                          <Plus size={12} />
+                          <Plus
+                            size={12}
+                          />
                         </button>
                       </div>
 
@@ -919,7 +1133,9 @@ function Menu() {
                           )
                         }
                       >
-                        <Trash2 size={15} />
+                        <Trash2
+                          size={15}
+                        />
                       </button>
                     </div>
                   </div>
@@ -927,12 +1143,16 @@ function Menu() {
               )}
             </div>
 
-            {/* BOTTOM */}
+            {/* CART BOTTOM */}
 
             <div className="cart-bottom">
+              {/* SUMMARY */}
+
               <div className="cart-summary">
                 <div className="summary-row">
-                  <span>Subtotal</span>
+                  <span>
+                    Subtotal
+                  </span>
 
                   <strong>
                     Rs.{" "}
@@ -953,7 +1173,8 @@ function Menu() {
                   </span>
 
                   <strong>
-                    {delivery.fee > 0
+                    {delivery.fee >
+                    0
                       ? `Rs. ${formatPrice(
                           delivery.fee
                         )}`
@@ -964,7 +1185,9 @@ function Menu() {
                 <div className="summary-divider"></div>
 
                 <div className="summary-row summary-total">
-                  <span>Total</span>
+                  <span>
+                    Total
+                  </span>
 
                   <strong>
                     Rs.{" "}
@@ -975,14 +1198,34 @@ function Menu() {
                 </div>
               </div>
 
-              {/* CUSTOMER */}
+              {/* CUSTOMER DETAILS */}
 
               <div className="customer-fields">
+                <div className="delivery-heading">
+                  <MapPin
+                    size={18}
+                  />
+
+                  <div>
+                    <strong>
+                      Delivery Address
+                    </strong>
+
+                    <span>
+                      Enter your details
+                      for accurate
+                      delivery.
+                    </span>
+                  </div>
+                </div>
+
                 <input
                   type="text"
                   name="name"
                   placeholder="Your Name"
-                  value={customer.name}
+                  value={
+                    customer.name
+                  }
                   onChange={
                     handleCustomerChange
                   }
@@ -992,7 +1235,9 @@ function Menu() {
                   type="tel"
                   name="phone"
                   placeholder="Phone Number"
-                  value={customer.phone}
+                  value={
+                    customer.phone
+                  }
                   onChange={
                     handleCustomerChange
                   }
@@ -1002,22 +1247,47 @@ function Menu() {
                   name="address"
                   placeholder="Delivery Address — Karachi"
                   rows="3"
-                  value={customer.address}
+                  value={
+                    customer.address
+                  }
                   onChange={
                     handleCustomerChange
                   }
                 />
 
-                {/* MAP BUTTON */}
+                {/* MAP INSTRUCTION */}
+
+                <div className="map-instruction">
+                  <MapPin
+                    size={17}
+                  />
+
+                  <p>
+                    For faster and more
+                    accurate delivery,
+                    please open Google
+                    Maps, select your
+                    exact location and
+                    paste the location
+                    link below.
+                  </p>
+                </div>
+
+                {/* GOOGLE MAPS */}
 
                 <button
                   type="button"
                   className="map-location-button"
-                  onClick={openGoogleMaps}
+                  onClick={
+                    openGoogleMaps
+                  }
                 >
-                  <MapPin size={17} />
+                  <MapPin
+                    size={17}
+                  />
 
-                  Choose Location on Google Maps
+                  Choose Location
+                  on Google Maps
 
                   <ArrowUpRight
                     size={16}
@@ -1027,8 +1297,10 @@ function Menu() {
                 <input
                   type="text"
                   name="location"
-                  placeholder="Paste Google Maps location link (optional)"
-                  value={customer.location}
+                  placeholder="Paste Google Maps location link"
+                  value={
+                    customer.location
+                  }
                   onChange={
                     handleCustomerChange
                   }
@@ -1039,15 +1311,19 @@ function Menu() {
                 <button
                   type="button"
                   className="calculate-delivery"
-                  onClick={calculateDelivery}
-                  disabled={delivery.loading}
+                  onClick={
+                    calculateDelivery
+                  }
+                  disabled={
+                    delivery.loading
+                  }
                 >
                   {delivery.loading
                     ? "Calculating..."
                     : "Calculate Delivery Charges"}
                 </button>
 
-                {/* STATUS */}
+                {/* DELIVERY RESULT */}
 
                 {delivery.distance !==
                   null &&
@@ -1084,10 +1360,14 @@ function Menu() {
 
                 {delivery.error && (
                   <p className="delivery-error">
-                    {delivery.error}
+                    {
+                      delivery.error
+                    }
                   </p>
                 )}
               </div>
+
+              {/* WHATSAPP */}
 
               <button
                 className="whatsapp-order"
@@ -1096,12 +1376,16 @@ function Menu() {
                 }
               >
                 Order on WhatsApp
-                <ArrowUpRight size={19} />
+
+                <ArrowUpRight
+                  size={19}
+                />
               </button>
 
               <p className="cart-note">
-                Your order will open in
-                WhatsApp for confirmation.
+                Your order will open
+                in WhatsApp for
+                confirmation.
               </p>
             </div>
           </aside>

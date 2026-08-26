@@ -55,13 +55,13 @@ function Footer() {
             Find Us
           </a>
 
-          <a href="tel:+923000000000">
+          <a href="tel:+923168937463">
             <Phone size={14} />
             Call Us
           </a>
 
           <a
-            href="https://wa.me/923000000000"
+            href="https://wa.me/923168937463"
             target="_blank"
             rel="noopener noreferrer"
           >
